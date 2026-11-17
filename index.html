@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Ordering System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-box">
+        <!-- Header Banner -->
+        <div class="header-flex">
+            <h1>🍔 Welcome! What is your order?<br><span style="font-size: 12px; font-weight: normal;">Touch category on sidebar or choose your order below.</span></h1>
+            <button class="admin-toggle-btn" onclick="toggleAdmin()">Admin Login</button>
+        </div>
+
+        <!-- CUSTOMER VIEW (Sidebar + Cart Left + Menu Right) -->
+        <div id="customer-view">
+            <div class="app-layout">
+                <!-- Sidebar Categories -->
+                <div class="sidebar">
+                    <h3>Categories</h3>
+                    <button class="category-btn active" onclick="filterCategory('all', this)">🍽️ All Items</button>
+                    <button class="category-btn" onclick="filterCategory('meals', this)">🍗 Meals / Mains</button>
+                    <button class="category-btn" onclick="filterCategory('sides', this)">🍚 Sides & Rice</button>
+                    <button class="category-btn" onclick="filterCategory('drinks', this)">🥤 Cold Drinks</button>
+                    <button class="category-btn" onclick="filterCategory('desserts', this)">🍮 Desserts</button>
+                </div>
+
+                <!-- Main Content split into Left Cart & Right Menu -->
+                <div class="content-area">
+                    <div class="store-body-grid">
+
+                        <!-- LEFT SIDE: Order Viewing / Tray Summary -->
+                        <div class="cart-section-left">
+                            <h2>My Tray Summary</h2>
+                            <!-- Customer Identification Field -->
+                            <div class="customer-container">
+                                <label for="customerName">Customer Name:</label>
+                                <input type="text" id="customerName" class="input-field" placeholder="Enter your name...">
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Size</th>
+                                            <th>Qty</th>
+                                            <th>Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cart-list">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; color: #777;">YOUR TRAY IS EMPTY. Touch any item to order!</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="total-div">
+                                Total Payment: ₱<span id="total-price">0.00</span>
+                            </div>
+
+                            <button class="order-btn" onclick="checkout()">PLACE ORDER NOW ➡</button>
+                        </div>
+
+                        <!-- RIGHT SIDE: Menu Items & Search -->
+                        <div class="menu-section-right">
+                            <!-- Search Bar Section -->
+                            <div class="search-container">
+                                <input type="text" id="searchInput" class="input-field" placeholder="🔍 Search menu item..." onkeyup="filterMenu()">
+                            </div>
+
+                            <h2>Menu Items</h2>
+                            <div class="menu-con" id="menuContainer">
+                                
+                                <!-- Pork Adobo -->
+                                <div class="item-card" data-name="pork adobo" data-category="meals" onclick="openProductModal('Pork Adobo (with Rice)', 'a.jpg', '₱60', ['Full Portion (₱60)', 'Half Portion (₱35)'], 'size-adobo', 'qty-adobo')">
+                                    <img src="a.jpg" alt="Pork Adobo" class="food-img" onerror="this.src='a.jpeg';">
+                                    <h3>Pork Adobo (with Rice)</h3>
+                                    <p id="price-adobo">₱60</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-adobo" class="portion-select" onchange="updatePriceDisplay('adobo')">
+                                            <option value="Full Portion" data-price="60">Full Portion (₱60)</option>
+                                            <option value="Half Portion" data-price="35">Half Portion (₱35)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-adobo" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Pork Adobo (with Rice)', 'size-adobo', 'qty-adobo', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Fried Chicken -->
+                                <div class="item-card" data-name="fried chicken" data-category="meals" onclick="openProductModal('Fried Chicken (with Rice)', 'b.jpg', '₱40', ['1 Pc Regular (₱40)', '2 Pcs Combo (₱75)'], 'size-chicken', 'qty-chicken')">
+                                    <img src="b.jpg" alt="Fried Chicken" class="food-img" onerror="this.src='b.jpeg';">
+                                    <h3>Fried Chicken (with Rice)</h3>
+                                    <p id="price-chicken">₱40</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-chicken" class="portion-select" onchange="updatePriceDisplay('chicken')">
+                                            <option value="1 Pc Regular" data-price="40">1 Pc Regular (₱40)</option>
+                                            <option value="2 Pcs Combo" data-price="75">2 Pcs Combo (₱75)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-chicken" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Fried Chicken (with Rice)', 'size-chicken', 'qty-chicken', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Pinakbet -->
+                                <div class="item-card" data-name="pinakbet" data-category="meals" onclick="openProductModal('Pinakbet (with Rice)', 'c.jpg', '₱40', ['Full Serving (₱40)', 'Half Serving (₱25)'], 'size-pinakbet', 'qty-pinakbet')">
+                                    <img src="c.jpg" alt="Pinakbet" class="food-img" onerror="this.src='c.jpeg';">
+                                    <h3>Pinakbet (with Rice)</h3>
+                                    <p id="price-pinakbet">₱40</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-pinakbet" class="portion-select" onchange="updatePriceDisplay('pinakbet')">
+                                            <option value="Full Serving" data-price="40">Full Serving (₱40)</option>
+                                            <option value="Half Serving" data-price="25">Half Serving (₱25)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-pinakbet" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Pinakbet (with Rice)', 'size-pinakbet', 'qty-pinakbet', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Kare-kare -->
+                                <div class="item-card" data-name="kare-kare" data-category="meals" onclick="openProductModal('Kare-kare (with Rice)', 'o.jpg', '₱40', ['Full Serving (₱40)', 'Half Serving (₱25)'], 'size-Kare-kare', 'qty-kare-kare')">
+                                    <img src="o.jpg" alt="Kare-kare" class="food-img" onerror="this.src='o.jpeg';">
+                                    <h3>Kare-kare (with Rice)</h3>
+                                    <p id="price-Kare-kare">₱40</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-Kare-kare" class="portion-select" onchange="updatePriceDisplay('Kare-kare')">
+                                            <option value="Full Serving" data-price="40">Full Serving (₱40)</option>
+                                            <option value="Half Serving" data-price="25">Half Serving (₱25)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-kare-kare" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Kare-kare (with Rice)', 'size-Kare-kare', 'qty-kare-kare', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Letchon -->
+                                <div class="item-card" data-name="letchon" data-category="meals" onclick="openProductModal('Lechon (with Rice)', 'p.jpg', '₱40', ['Full Serving (₱40)', 'Half Serving (₱25)'], 'size-Lechon', 'qty-Lechon')">
+                                    <img src="p.jpg" alt="Letchon" class="food-img" onerror="this.src='p.jpeg';">
+                                    <h3>Letchon (with Rice)</h3>
+                                    <p id="price-Lechon">₱40</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-Lechon" class="portion-select" onchange="updatePriceDisplay('Lechon')">
+                                            <option value="Full Serving" data-price="40">Full Serving (₱40)</option>
+                                            <option value="Half Serving" data-price="25">Half Serving (₱25)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-Lechon" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Lechon (with Rice)', 'size-Lechon', 'qty-Lechon', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Spaghetti -->
+                                <div class="item-card" data-name="spaghetti" data-category="meals" onclick="openProductModal('Spaghetti', 'd.jpg', '₱30', ['Regular (₱30)', 'Large (₱50)'], 'size-spag', 'qty-spag')">
+                                    <img src="d.jpg" alt="Spaghetti" class="food-img" onerror="this.src='d.jpeg';">
+                                    <h3>Spaghetti</h3>
+                                    <p id="price-spag">₱30</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-spag" class="portion-select" onchange="updatePriceDisplay('spag')">
+                                            <option value="Regular" data-price="30">Regular (₱30)</option>
+                                            <option value="Large" data-price="50">Large (₱50)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-spag" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Spaghetti', 'size-spag', 'qty-spag', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Extra Rice -->
+                                <div class="item-card" data-name="rice extra" data-category="sides" onclick="openProductModal('Rice (Extra)', 'e.jpg', '₱10', ['1 Cup (₱10)', '1.5 Cups (₱15)'], 'size-rice', 'qty-rice')">
+                                    <img src="e.jpg" alt="Rice (Extra)" class="food-img" onerror="this.src='e.jpeg';">
+                                    <h3>Rice (Extra)</h3>
+                                    <p id="price-rice">₱10</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-rice" class="portion-select" onchange="updatePriceDisplay('rice')">
+                                            <option value="1 Cup" data-price="10">1 Cup (₱10)</option>
+                                            <option value="1.5 Cups" data-price="15">1.5 Cups (₱15)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-rice" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Extra Rice', 'size-rice', 'qty-rice', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Java Rice -->
+                                <div class="item-card" data-name="java rice" data-category="sides" onclick="openProductModal('Java Rice', 'm.jpg', '₱15', ['1 Cup (₱15)', '1.5 Cups (₱20)'], 'size-java-rice', 'qty-java-rice')">
+                                    <img src="m.jpg" alt="Java Rice" class="food-img" onerror="this.src='m.jpeg';">
+                                    <h3>Java Rice</h3>
+                                    <p id="price-java-rice">₱15</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-java-rice" class="portion-select" onchange="updatePriceDisplay('java-rice')">
+                                            <option value="1 Cup" data-price="15">1 Cup (₱15)</option>
+                                            <option value="1.5 Cups" data-price="20">1.5 Cups (₱20)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-java-rice" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Java Rice', 'size-java-rice', 'qty-java-rice', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Coke -->
+                                <div class="item-card" data-name="coke can" data-category="drinks" onclick="openProductModal('Coke', 'f.jpg', '₱25', ['330ml Can (₱25)', '500ml Bottle (₱45)'], 'size-coke', 'qty-coke')">
+                                    <img src="f.jpg" alt="Coke" class="food-img" onerror="this.src='f.jpeg';">
+                                    <h3>Coke</h3>
+                                    <p id="price-coke">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-coke" class="portion-select" onchange="updatePriceDisplay('coke')">
+                                            <option value="330ml Can" data-price="25">330ml Can (₱25)</option>
+                                            <option value="500ml Bottle" data-price="45">500ml Bottle (₱45)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-coke" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Coke', 'size-coke', 'qty-coke', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Orange Juice -->
+                                <div class="item-card" data-name="orange juice" data-category="drinks" onclick="openProductModal('Orange Juice', 'j.jpg', '₱25', ['330ml medium (₱25)', '500ml large (₱45)'], 'size-orange', 'qty-orange')">
+                                    <img src="j.jpg" alt="Orange Juice" class="food-img" onerror="this.src='j.jpeg';">
+                                    <h3>Orange Juice</h3>
+                                    <p id="price-orange">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-orange" class="portion-select" onchange="updatePriceDisplay('orange')">
+                                            <option value="330ml medium" data-price="25">330ml medium (₱25)</option>
+                                            <option value="500ml large" data-price="45">500ml large (₱45)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-orange" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Orange Juice', 'size-orange', 'qty-orange', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Nestea -->
+                                <div class="item-card" data-name="nestea" data-category="drinks" onclick="openProductModal('Nestea', 'k.jpg', '₱25', ['330ml medium (₱25)', '500ml large (₱45)'], 'size-nestea', 'qty-nestea')">
+                                    <img src="k.jpg" alt="Nestea" class="food-img" onerror="this.src='k.jpeg';">
+                                    <h3>Nestea</h3>
+                                    <p id="price-nestea">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-nestea" class="portion-select" onchange="updatePriceDisplay('nestea')">
+                                            <option value="330ml medium" data-price="25">330ml medium (₱25)</option>
+                                            <option value="500ml large" data-price="45">500ml large (₱45)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-nestea" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Nestea', 'size-nestea', 'qty-nestea', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Coke Float -->
+                                <div class="item-card" data-name="coke float" data-category="drinks" onclick="openProductModal('Coke Float', 'l.jpg', '₱25', ['330ml medium (₱25)', '500ml large (₱45)'], 'size-coke-float', 'qty-coke-float')">
+                                    <img src="l.jpg" alt="Coke Float" class="food-img" onerror="this.src='l.jpeg';">
+                                    <h3>Coke Float</h3>
+                                    <p id="price-coke-float">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-coke-float" class="portion-select" onchange="updatePriceDisplay('coke-float')">
+                                            <option value="330ml medium" data-price="25">330ml medium (₱25)</option>
+                                            <option value="500ml large" data-price="45">500ml large (₱45)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-coke-float" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Coke Float', 'size-coke-float', 'qty-coke-float', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Water Bottle -->
+                                <div class="item-card" data-name="water bottle" data-category="drinks" onclick="openProductModal('Water Bottle', 'g.jpg', '₱15', ['500ml Small (₱15)', '1L Large (₱25)'], 'size-water', 'qty-water')">
+                                    <img src="g.jpg" alt="Water Bottle" class="food-img" onerror="this.src='g.jpeg';">
+                                    <h3>Water Bottle</h3>
+                                    <p id="price-water">₱15</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-water" class="portion-select" onchange="updatePriceDisplay('water')">
+                                            <option value="500ml Small" data-price="15">500ml Small (₱15)</option>
+                                            <option value="1L Large" data-price="25">1L Large (₱25)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-water" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Water Bottle', 'size-water', 'qty-water', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Leche Flan -->
+                                <div class="item-card" data-name="leche flan" data-category="desserts" onclick="openProductModal('Leche Flan', 'h.jpg', '₱25', ['Slice (₱25)', 'Whole Lyanera (₱120)'], 'size-leche', 'qty-leche')">
+                                    <img src="h.jpg" alt="Leche Flan" class="food-img" onerror="this.src='h.jpeg';">
+                                    <h3>Leche Flan</h3>
+                                    <p id="price-leche">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-leche" class="portion-select" onchange="updatePriceDisplay('leche')">
+                                            <option value="Slice" data-price="25">Slice (₱25)</option>
+                                            <option value="Whole Lyanera" data-price="120">Whole Lyanera (₱120)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-leche" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Leche Flan', 'size-leche', 'qty-leche', this)">+ Add to Order</button>
+                                </div>
+
+                                <!-- Graham Bar -->
+                                <div class="item-card" data-name="graham bar" data-category="desserts" onclick="openProductModal('Graham Bar', 'i.jpg', '₱25', ['Single Bar (₱25)', 'Double Pack (₱45)'], 'size-graham', 'qty-graham')">
+                                    <img src="i.jpg" alt="Graham Bar" class="food-img" onerror="this.src='i.jpeg';">
+                                    <h3>Graham Bar</h3>
+                                    <p id="price-graham">₱25</p>
+                                    <div class="option-box" onclick="event.stopPropagation()">
+                                        <label>Size:</label>
+                                        <select id="size-graham" class="portion-select" onchange="updatePriceDisplay('graham')">
+                                            <option value="Single Bar" data-price="25">Single Bar (₱25)</option>
+                                            <option value="Double Pack" data-price="45">Double Pack (₱45)</option>
+                                        </select>
+                                    </div>
+                                    <div class="qty-box" onclick="event.stopPropagation()">
+                                        <label>Qty:</label>
+                                        <input type="number" id="qty-graham" class="qty-input" value="1" min="1">
+                                    </div>
+                                    <button class="add-btn" onclick="event.stopPropagation(); addOrderFromCard('Graham Bar', 'size-graham', 'qty-graham', this)">+ Add to Order</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN PANEL VIEW -->
+        <div id="admin-view" class="admin-panel">
+            <button class="back-store-btn" onclick="toggleAdmin()">⬅ Back to Store</button>
+            <h2>Admin Dashboard - Incoming Customer Orders</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer Name</th>
+                            <th>Items Ordered</th>
+                            <th>Total Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-order-list">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #777;">No customer orders yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT POPUP MODAL WITH ADD TO CART -->
+    <div id="productModal" class="modal-overlay" onclick="closeProductModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeProductModal()">&times;</button>
+            <img id="modalImg" src="" alt="Product Image">
+            <h3 id="modalTitle" style="font-size: 18px; margin-bottom: 5px;"></h3>
+            <p id="modalPrice" style="font-size: 16px; color: #d32f2f; margin-bottom: 10px; font-weight: bold;"></p>
+            
+            <div class="option-box" style="margin-bottom: 10px;">
+                <label>Size:</label>
+                <select id="modalSizeSelect" class="portion-select" style="width: 140px;"></select>
+            </div>
+            
+            <div class="qty-box" style="margin-bottom: 15px;">
+                <label>Qty:</label>
+                <input type="number" id="modalQtyInput" class="qty-input" value="1" min="1">
+            </div>
+
+            <button class="order-btn" style="padding: 10px; font-size: 14px;" id="modalAddBtn">+ Add to Order</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
